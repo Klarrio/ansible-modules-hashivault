@@ -90,6 +90,9 @@ options:
     explicit_max_ttl:
         description:
             - An explicit maximum lifetime for the token
+    period:
+        description:
+            - If specified, token will be a periodic token. It will have no maximum TTL (unless an "explicit-max-ttl" is also set) but every renewal will use the given period.
 '''
 EXAMPLES = '''
 ---
@@ -121,6 +124,7 @@ def main():
     argspec['orphan'] = dict(required=False, type='bool', default=False)
     argspec['renewable'] = dict(required=False, type='bool')
     argspec['explicit_max_ttl'] = dict(required=False, type='str')
+    argspec['period'] = dict(required=False, type='str')
     module = hashivault_init(argspec)
     result = hashivault_token_create(module.params)
     if result.get('failed'):
@@ -150,6 +154,7 @@ def hashivault_token_create(params):
     orphan = params.get('orphan')
     renewable = params.get('renewable')
     explicit_max_ttl = params.get('explicit_max_ttl')
+    period = params.get('period')
 
     token = client.create_token(
         role=role,
@@ -165,7 +170,8 @@ def hashivault_token_create(params):
         wrap_ttl=wrap_ttl,
         orphan=orphan,
         renewable=renewable,
-        explicit_max_ttl=explicit_max_ttl
+        explicit_max_ttl=explicit_max_ttl,
+        period=period
         )
 
     return {'changed': True, 'token': token}
